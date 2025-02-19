@@ -1,5 +1,6 @@
 package com.movieflix.mivieAPI.service;
 
+import com.movieflix.mivieAPI.dto.MoviePageResponse;
 import com.movieflix.mivieAPI.dto.Moviedto;
 import com.movieflix.mivieAPI.entities.Movie;
 import com.movieflix.mivieAPI.exception.FileExistsException;
@@ -7,8 +8,12 @@ import com.movieflix.mivieAPI.exception.MovieNotFoundException;
 import com.movieflix.mivieAPI.repository.MovieRepository;
 import com.movieflix.mivieAPI.transformer.MovieTranformer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -121,5 +126,31 @@ public class MovieServiceIMPL implements MovieService{
         // 3. delete the movie object
         movieRepository.delete(mv);
         return "Movie deleted with id "+ id;
+    }
+
+    @Override
+    public MoviePageResponse getAllMovieWithPagination(Integer pageNumber , Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+       Page<Movie> page = movieRepository.findAll(pageable);
+       List<Movie> movies = page.getContent();
+       List<Moviedto> moviedtoList = MovieTranformer.listEntityToSto(movies);
+        return new MoviePageResponse(moviedtoList , pageNumber , pageSize
+                                       ,(int) page.getTotalElements()
+                                       ,page.getTotalPages()
+                                     ,page.isLast());
+    }
+
+    @Override
+    public MoviePageResponse getAllMovieWithPaginationAndSorting(Integer pageNumber , Integer pageSize , String sortBy , String dir) {
+        Sort sort = dir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize , sort);
+        Page<Movie> page = movieRepository.findAll(pageable);
+        List<Movie> movies = page.getContent();
+        List<Moviedto> moviedtoList = MovieTranformer.listEntityToSto(movies);
+        return new MoviePageResponse(moviedtoList , pageNumber , pageSize
+                ,(int) page.getTotalElements()
+                ,page.getTotalPages()
+                ,page.isLast());
     }
 }

@@ -2,9 +2,11 @@ package com.movieflix.mivieAPI.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.movieflix.mivieAPI.dto.MoviePageResponse;
 import com.movieflix.mivieAPI.dto.Moviedto;
 import com.movieflix.mivieAPI.exception.EmptyFileException;
 import com.movieflix.mivieAPI.service.MovieService;
+import com.movieflix.mivieAPI.utils.AppConstants;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -25,9 +27,31 @@ public class MovieController {
         this.movieService = movieService;
     }
 
+
+    @GetMapping("/all-movie-pages")
+    public ResponseEntity<MoviePageResponse> getMovieWithPagination(
+            @RequestParam (defaultValue = AppConstants.PAGE_NUMBER ,required = false)Integer pageNumber,
+            @RequestParam(defaultValue = AppConstants.PAGE_SIZE ,required = false)Integer pageSize
+                                                                    )
+    {
+         return ResponseEntity.ok(movieService.getAllMovieWithPagination(pageNumber , pageSize));
+    }
+
+
     @GetMapping("/get-all-movies")
     public ResponseEntity<List<Moviedto>> getAllMovies(){
         return new ResponseEntity<>(movieService.getAllMovie() , HttpStatus.OK);
+    }
+
+    @GetMapping("/allMoviePageSort")
+    public  ResponseEntity<MoviePageResponse> getALlMovieWithPaginationAndSorting(
+            @RequestParam (defaultValue = AppConstants.PAGE_NUMBER ,required = false)Integer pageNumber,
+            @RequestParam(defaultValue = AppConstants.PAGE_SIZE ,required = false)Integer pageSize,
+            @RequestParam(defaultValue = AppConstants.SORT_BY , required = false)String  sortBy,
+            @RequestParam(defaultValue = AppConstants.SORT_DIR , required = false)String dir
+    ){
+
+        return ResponseEntity.ok(movieService.getAllMovieWithPaginationAndSorting(pageNumber , pageSize , sortBy , dir));
     }
 
 
