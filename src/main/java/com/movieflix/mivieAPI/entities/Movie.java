@@ -14,6 +14,7 @@ import java.util.logging.Level;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 @Builder
 public class Movie {
 

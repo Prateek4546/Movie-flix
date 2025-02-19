@@ -30,17 +30,17 @@ public class MovieController {
     }
 
 
-    @PutMapping("/{movieId}")
+    @PutMapping("/update/{movieId}")
     public  ResponseEntity<Moviedto> updateById(@PathVariable Integer movieId ,
-                                                @RequestPart MultipartFile file,
+                                                @RequestPart(required = false) MultipartFile file,
                                                 @RequestPart String dto) throws IOException {
-        if(file.isEmpty())file= null;
+//        if(file.isEmpty())file= null;
         Moviedto moviedto = convertMovieDto(dto);
         return new ResponseEntity<>(movieService.updateMovie(movieId , moviedto  , file) , HttpStatus.OK);
 
     }
 
-    @GetMapping("update/{movieId}")
+    @GetMapping("/{movieId}")
     public ResponseEntity<Moviedto> getById(@PathVariable Integer movieId){
         Moviedto moviedto = movieService.getMovie(movieId);
         return new ResponseEntity<>(moviedto , HttpStatus.OK);

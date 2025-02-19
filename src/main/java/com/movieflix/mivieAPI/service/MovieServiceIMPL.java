@@ -78,23 +78,32 @@ public class MovieServiceIMPL implements MovieService{
     }
 
     @Override
-    public Moviedto updateMovie(Integer movieId, Moviedto moviedto, MultipartFile file) throws IOException {
+    public Moviedto updateMovie(Integer movieId, Moviedto movieDto, MultipartFile file) throws IOException {
 
         // 1. check if Movie onb is exits with given movieId
-         Movie movie = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("No Movie present by this id"));
+         Movie mv = movieRepository.findById(movieId).orElseThrow(() -> new RuntimeException("No Movie present by this id"));
 
         // 2. check if poster is null , do nothing and if  not null the then delete existing file  associated with the record and upload new file
-         String fileName = movie.getPoster();
+         String fileName = mv.getPoster();
          if(file != null){
              Files.deleteIfExists(Paths.get(path + File.separator + fileName));
              fileName = fileService.uploadeFile(path , file);
          }
         // 3.  set mocieDto poster value according to step 2
-        moviedto.setPoster(fileName);
+        movieDto.setPoster(fileName);
         // 4. map it to movie onject
-        Movie movie1 = MovieTranformer.DtoToEntity(moviedto);
+        Movie movie = new Movie(
+                mv.getMovieId(),
+                movieDto.getTitle(),
+                movieDto.getDirector(),
+                movieDto.getStudio(),
+                movieDto.getMovieCast(),
+                movieDto.getReleaseYear(),
+                movieDto.getPoster()
+        );
+        // Instead of creating a new Movie object, update the existing movie entity with the values from moviedto.
         // 5. save movie object and return this object
-        Movie movie2 = movieRepository.save(movie1);
+        Movie movie2 = movieRepository.save(movie);
         // 6. generate poster url for this
         String posterUrl = baseUrl+"/file/"+ movie.getPoster();
         // 7. map movie dto and return it
